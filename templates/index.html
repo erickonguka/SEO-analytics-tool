@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <title>SEO Analysis Tool by Anzar KE</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/justgage@1.3.1/justgage.js"></script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
+      body {
+        font-family: "Nunito Sans", sans-serif;
+        background-image: url("https://images.pexels.com/photos/12627677/pexels-photo-12627677.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100%;
+        margin: 0;
+      }
+
+      .glass-effect {
+        backdrop-filter: blur(18px);
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .glass-effect:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      .glass-effect-btn {
+        color: #db3434;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .glass-effect-btn:hover {
+        color: #db3434;
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      .glass-effect-btn-primary {
+        backdrop-filter: blur(10px);
+        background: rgba(238, 22, 22, 0.8);
+        border-radius: 12px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        color: white;
+      }
+
+      .glass-effect-btn-primary:hover {
+        color: #db3434;
+        background: rgba(250, 250, 250, 0.5);
+      }
+
+      .glass-effect-btn-secondary {
+        color: #db3434;
+        backdrop-filter: blur(10px);
+        background: rgba(123, 123, 123, 0.3);
+        border-radius: 12px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .glass-effect-btn-secondary:hover {
+        color: #0f0b0b;
+        background: rgba(250, 250, 250, 0.5);
+      }
+
+      .btn {
+        transition: background-color 0.3s ease;
+      }
+
+      @keyframes bg-pan {
+        0% {
+          background-position: 100% 0;
+        }
+        100% {
+          background-position: 0 0;
+        }
+      }
+
+      .animate-bg-pan {
+        background-size: 200% 200%;
+        animation: bg-pan 3s linear infinite;
+      }
+
+      .btn:hover {
+        background-color: rgba(255, 255, 255, 0.6);
+        color: rgb(57, 57, 57);
+      }
+
+      .fade-in {
+        opacity: 0;
+        transform: translateY(-20px);
+        animation: fadeIn 0.3s forwards;
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .loader {
+        border: 4px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 4px solid #db3434;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        align-items: center;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      #keywordsList::-webkit-scrollbar {
+        display: none;
+      }
+
+      #keywordsList {
+        scrollbar-width: none;
+      }
+
+      #keywordsList {
+        -ms-overflow-style: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto min-h-screen items-center justify-center">
+      <div
+        class="max-w-lg mx-5 p-8 glass-effect text-white lg:max-w-3xl lg:p-12 xl:max-w-4xl xl:p-16 lg:mx-auto mt-28"
+      >
+        <h1
+          class="text-3xl lg:text-4xl xl:text-5xl font-bold text-center mb-4 lg:mb-6"
+        >
+          ✨ Analyse SEO
+        </h1>
+        <p
+          id="information"
+          class="text-center mb-4 lg:mb-6 xl:mb-8 text-lg lg:text-xl"
+        >
+          FREE insights and keywords to rank top on search engines like google.
+        </p>
+        <form id="analyzeForm" class="space-y-4 lg:space-y-6">
+          <input
+            type="text"
+            id="link"
+            name="link"
+            class="w-full px-4 py-2 text-gray-600 rounded-lg lg:px-6 lg:py-3 xl:px-8 xl:py-4"
+            placeholder="Enter any website link here..."
+            required
+          />
+          <button
+            type="submit"
+            id="analyzeBtn"
+            class="btn w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 lg:py-3 xl:py-4"
+          >
+            Click here to analyse ⭐
+          </button>
+        </form>
+        <div
+          id="results"
+          class="mt-4 hidden lg:mt-6 xl:mt-8 flex flex-col items-center"
+        >
+          <div
+            id="gauge"
+            class="text-center text-white text-sm"
+            style="width: 300px; height: 200px"
+          ></div>
+          <div
+            id="resultContent"
+            class="bg-gray-100 p-4 rounded-lg lg:p-2 xl:p-8 mt-4 glass-effect text-gray-600"
+          ></div>
+        </div>
+
+        <div
+          id="errorMessage"
+          class="text-red-500 hidden mt-4 lg:mt-6 bold"
+        ></div>
+
+        <!-- CTA Buttons -->
+        <div
+          id="ctaButtons"
+          class="flex flex-col lg:flex-row lg:space-x-4 mt-6 hidden lg:mt-8 xl:mt-10"
+        >
+          <button
+            id="keywordModalBtn"
+            class="btn glass-effect-btn-primary flex-1 py-3 rounded-lg hover:bg-red-600 transition duration-300 mb-2"
+          >
+            <i class="fas fa-key mr-2"></i> Keywords
+          </button>
+          <button
+            id="hireExpertBtn"
+            class="btn glass-effect-btn-secondary flex-1 py-3 rounded-lg hover:bg-green-700 transition duration-300 mb-2"
+            onclick="window.open('https://wa.me/254743048147', '_blank')"
+          >
+            <i class="fas fa-user-tie mr-2"></i> Rank now!
+          </button>
+          <button
+            id="analyzeAnotherBtn"
+            class="btn glass-effect-btn-secondary flex-1 py-3 rounded-lg hover:bg-gray-600 transition duration-300"
+          >
+            <i class="fas fa-redo mr-2"></i> Retry
+          </button>
+        </div>
+      </div>
+
+      <!-- Popular Websites Section -->
+      <div class="mt-8" id="recommendations">
+        <h2 class="text-2xl font-bold text-center mb-4 text-white">
+          Top Analysed
+        </h2>
+        <div class="flex flex-wrap justify-center space-x-4">
+          <a
+            href="#"
+            onclick="fillForm('tuko.co.ke')"
+            class="bg-gray-200 hover:bg-gray-300 text-white rounded-lg px-4 py-2 mb-2 glass-effect"
+            >tuko</a
+          >
+          <a
+            href="#"
+            onclick="fillForm('betika.com')"
+            class="bg-gray-200 hover:bg-gray-300 text-white rounded-lg px-4 py-2 mb-2 glass-effect"
+            >betika</a
+          >
+          <a
+            href="#"
+            onclick="fillForm('y2mate.com')"
+            class="bg-gray-200 hover:bg-gray-300 text-white rounded-lg px-4 py-2 mb-2 glass-effect"
+            >y2mate</a
+          >
+          <a
+            href="#"
+            onclick="fillForm('kaiandkaro.com')"
+            class="bg-gray-200 hover:bg-gray-300 text-white rounded-lg px-4 py-2 mb-2 glass-effect"
+            >kaiandkaro</a
+          >
+        </div>
+      </div>
+
+      <footer
+        class="text-center text-sm text-white mt-8 lg:text-base xl:text-lg"
+      >
+        Powered by
+        <a href="https://anzar.co.ke" class="text-red-200 hover:underline"
+          >Anzar KE</a
+        >
+        &copy; <span id="currentYear"></span>
+      </footer>
+    </div>
+
+    <!-- Modal for Keywords -->
+    <div
+      id="keywordModal"
+      class="fixed inset-0 hidden bg-gray-900 bg-opacity-50 flex items-center justify-center text-white"
+    >
+      <div
+        class="glass-effect w-full max-w-md rounded-lg shadow-lg p-6 lg:max-w-2xl xl:max-w-3xl lg:p-10 xl:p-12"
+      >
+        <div
+          id="keywordsList"
+          class="space-y-2 max-h-96 overflow-y-scroll pr-2"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      let analysisInProgress = false;
+      let refreshAttempted = false;
+      function fillForm(url) {
+        $("#link").val(url);
+        setTimeout(() => {
+          $("#analyzeForm").submit();
+        }, 1000);
+      }
+
+      $(document).ready(function () {
+        $("#currentYear").text(new Date().getFullYear());
+        $("#analyzeForm").on("submit", function (e) {
+          e.preventDefault();
+
+          $("#recommendations").addClass("hidden");
+          var link = $("#link").val();
+
+          if (!isValidURL(link)) {
+            $("#errorMessage")
+              .removeClass("hidden")
+              .text("Please enter a valid URL.");
+            return;
+          }
+
+          analysisInProgress = true;
+          $("#analyzeBtn")
+            .attr("disabled", true)
+            .html('<div class="loader inline-block"></div> Analyzing...');
+
+          $("#results").addClass("hidden");
+          $("#link").addClass("hidden");
+          $("#information").addClass("hidden");
+          $("#resultContent").html("");
+          $("#errorMessage").addClass("hidden").text("");
+
+          setTimeout(function () {
+            $("#analyzeBtn").html(
+              '<div class="loader inline-block"></div> Doing what\'s necessary...'
+            );
+          }, 4000);
+
+          setTimeout(function () {
+            $("#analyzeBtn").html(
+              '<div class="loader inline-block"></div> Collecting more information...'
+            );
+          }, 9000);
+
+          setTimeout(function () {
+            $("#analyzeBtn").html(
+              '<div class="loader inline-block"></div> Almost done...'
+            );
+          }, 12000);
+
+          // Initialize the gauge
+          var g = new JustGage({
+            id: "gauge",
+            value: 0,
+            min: 0,
+            max: 100,
+            title: "SEO Score",
+            levelColors: [
+              "#FFD6D6",
+              "#FF8F8F",
+              "#FF6B6B",
+              "#FF2424",
+              "#200808",
+            ],
+            label: "Might not be accurate",
+            pointer: true,
+            pointerOptions: {
+              color: "#fff",
+            },
+          });
+
+          $.ajax({
+            url: "/analyze",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ link: link }),
+            beforeSend: function () {
+              $("#analyzeBtn")
+                .attr("disabled", "disabled")
+                .text("Analyzing...");
+            },
+            success: function (response) {
+              $("#seoScoreContainer").removeClass("hidden");
+              $("#results").removeClass("hidden");
+              $("#resultContent").html(`<div id="aiSummary"></div>`);
+              processAISummary(response.ai_summary);
+
+              $("#analyzeForm").addClass("hidden");
+              $("#recommendations").addClass("hidden");
+              $("#ctaButtons").removeClass("hidden");
+              $("#information").removeClass("hidden");
+              $("#information").text("Hooray! here are some insights...");
+              g.refresh(response.score);
+              analysisInProgress = false;
+              displayKeywordSuggestions(response.keywords);
+            },
+            error: function (xhr) {
+              $("#errorMessage").removeClass("hidden");
+              analysisInProgress = false;
+              if (xhr.status === 0) {
+                $("#errorMessage").text(
+                  "Network error: Unable to reach the website. Please check your connection or try again later."
+                );
+                $("#analyzeForm").removeClass("hidden");
+                $("#analyzeBtn").removeAttr("disabled").text("Analyze");
+              } else if (xhr.status === 429) {
+                $("#errorMessage").text(
+                  "Too many requests. Please try again later."
+                );
+                $("#analyzeBtn")
+                  .attr("disabled", true) // Disable the button since it may not be useful
+                  .attr("id", "tempID")
+                  .text("Too Many Requests");
+              } else if (xhr.status >= 400 && xhr.status < 500) {
+                $("#errorMessage").text(
+                  "Error " +
+                    xhr.status +
+                    ": Please check the URL and try again."
+                );
+                $("#analyzeForm").removeClass("hidden");
+                $("#analyzeBtn").removeAttr("disabled").text("Retry");
+              } else if (xhr.status >= 500) {
+                $("#errorMessage").text(
+                  "Error " +
+                    xhr.status +
+                    ": We're having trouble finding information about that website. Please try again later."
+                );
+                $("#analyzeBtn")
+                  .attr("disabled", true)
+                  .attr("id", "tempID")
+                  .text("Refresh page.");
+              } else {
+                $("#errorMessage").text(
+                  "An unexpected error occurred. Please try again later."
+                );
+                $("#analyzeBtn")
+                  .attr("disabled", true)
+                  .attr("id", "tempID")
+                  .text("Try again later.");
+              }
+            },
+            complete: function () {
+              // Ensure that the button is enabled after the request completes
+              if ($("#analyzeBtn").is(":disabled")) {
+                $("#analyzeBtn").removeAttr("disabled").text("Analyze");
+              }
+            },
+          });
+        });
+
+        function isValidURL(link) {
+          if (!/^https?:\/\//i.test(link)) {
+            link = "http://" + link;
+          }
+          var urlPattern = new RegExp(
+            "^(https?:\\/\\/)" +
+              '((([a-zA-Z0-9$-_@.&+!*"(),]|(%[0-9a-fA-F]{2})){1,256})\\.){1,}' +
+              "([a-zA-Z]{2,63})" +
+              '(\\/[a-zA-Z0-9$-_@.&+!*"(),:;~=?%#]*)*$',
+            "i"
+          );
+          return urlPattern.test(link);
+        }
+
+        window.addEventListener("beforeunload", function (e) {
+          if (analysisInProgress || refreshAttempted) {
+            e.preventDefault();
+            e.returnValue =
+              "Analysis is in progress, are you sure you want to leave?";
+          }
+        });
+
+        $("#analyzeAnotherBtn").click(function () {
+          location.reload();
+        });
+
+        function processAISummary(summary) {
+          const lines = summary.split("\n");
+          let formattedSummary = "";
+
+          lines.forEach((line) => {
+            if (line.startsWith("## ")) {
+              formattedSummary += `<h4 class="text-xl font-bold mt-4">${line.replace(
+                "## ",
+                ""
+              )}</h4>`;
+            } else if (line.startsWith("**")) {
+              const match = line.match(/\*\*(.*?)\*\*/);
+              if (match) {
+                formattedSummary += `<h5 class="text-xl text-red-700 font-semibold mt-2">${match[1]}</h5>`;
+              }
+            } else if (line.startsWith("* **")) {
+              formattedSummary += `<p class="mt-2"><strong>${
+                line.match(/\*\*(.*?)\*\*/)[1]
+              }</strong> ${line
+                .replace(/\*\*(.*?)\*\*/, "")
+                .replace("*", "")
+                .trim()}</p>`;
+            } else if (/^\d+\./.test(line)) {
+              formattedSummary += `<li class="ml-4 mt-2">${line.replace(
+                /\*\*(.*?)\*\*/,
+                "<strong>$1</strong>"
+              )}</li>`;
+            } else {
+              formattedSummary += `<p>${line
+                .replace(/\*\*(.*?)\*\*/, "<strong>$1</strong>")
+                .trim()}</p>`;
+            }
+          });
+
+          $("#aiSummary").html(formattedSummary);
+        }
+
+        $("#analyzeAnotherBtn").click(function () {
+          location.reload();
+        });
+
+        $("#keywordModalBtn").on("click", function () {
+          $("#keywordModal").removeClass("hidden");
+        });
+
+        $("#closeModalBtn").on("click", function () {
+          $("#keywordModal").addClass("hidden");
+        });
+
+        $(window).on("click", function (event) {
+          var modal = $("#keywordModal");
+          if (event.target === modal[0]) {
+            modal.addClass("hidden");
+          }
+        });
+
+        function displayKeywordSuggestions(keywordResponse) {
+          const keywordsList = $("#keywordsList");
+          keywordsList.empty();
+
+          const lines = keywordResponse.split("\n");
+          let currentCodeBlock = null;
+
+          lines.forEach((line) => {
+            if (line.startsWith("##")) {
+              const heading = $(
+                `<h2 class="text-xl font-bold mb-2">${line
+                  .replace("##", "")
+                  .trim()}</h2>`
+              );
+              keywordsList.append(heading);
+            } else if (line.match(/^\*\*.+\*\*$/)) {
+              const title = $(
+                `<h3 class="text-lg font-bold mb-2">${line.replace(
+                  /^\*\*|\*\*$/g,
+                  ""
+                )}</h3>`
+              );
+              keywordsList.append(title);
+            } else if (line.match(/^\d+\./)) {
+              if (!currentCodeBlock) {
+                currentCodeBlock = $(
+                  '<pre class="bg-gray-100 p-4 rounded-lg mb-4 glass-effect text-gray-600"><code></code></pre>'
+                );
+                keywordsList.append(currentCodeBlock);
+              }
+              currentCodeBlock.find("code").append(line + "\n");
+            } else if (line.match(/^\* \*\*.+\*\*:/)) {
+              const [header, ...rest] = line.split(":");
+              const formattedLine = `<p class="mb-2"><strong>${header.replace(
+                /^\* \*\*|\*\*$/g,
+                ""
+              )}:</strong>${rest.join(":")}</p>`;
+              keywordsList.append(formattedLine);
+            } else {
+              currentCodeBlock = null;
+              if (line.trim() !== "") {
+                const paragraph = $(`<p class="mb-2">${line.trim()}</p>`);
+                keywordsList.append(paragraph);
+              }
+            }
+          });
+
+          $("pre").each(function () {
+            const codeBlock = $(this);
+            const copyButton = $(
+              '<button class="absolute top-2 right-2 glass-effect-btn text-gray px-2 py-1 rounded text-sm">Copy</button>'
+            );
+            codeBlock.addClass("relative");
+            codeBlock.append(copyButton);
+
+            copyButton.on("click", function () {
+              const codeText = codeBlock.find("code").text();
+              navigator.clipboard.writeText(codeText).then(
+                () => {
+                  copyButton.text("Copied!");
+                  setTimeout(() => copyButton.text("Copy"), 2000);
+                },
+                (err) => {
+                  console.error("Could not copy text: ", err);
+                }
+              );
+            });
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
